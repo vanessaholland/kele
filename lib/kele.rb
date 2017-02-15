@@ -31,9 +31,30 @@ class Kele
     return @mentor_avail = JSON.parse(response.body)
   end
 
+  def get_messages(page = 1)
+    response = self.class.get(base_url("message_threads"), values: {"page": page}, headers: { "content_type" => 'application/json', "authorization" => @auth_token })
+    return @messages = JSON.parse(response.body)
+  end
+
+  def create_message(sender, recipient_id, token, subject, stripped_text, prod)
+    values = '{
+        "sender": sender,
+        "recipient_id": recipient_id,
+        "token": token,
+        "subject": subject,
+        "stripped-text": stripped_text
+        }'
+        response = self.class.post(base_url("messages", prod), body: values, headers: { "authorization" => @auth_token })
+        puts response
+  end
+
   private
 
-  def base_url(endpoint)
-		return "https://www.bloc.io/api/v1/#{endpoint}"
+  def base_url(endpoint, prod = true)
+    if prod
+      return "https://www.bloc.io/api/v1/#{endpoint}"
+    else
+      return "https://private-anon-bfb3dd2996-blocapi.apiary-mock.com/api/v1/#{endpoint}"
+    end
 	end
 end
